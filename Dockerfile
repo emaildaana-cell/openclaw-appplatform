@@ -101,8 +101,10 @@ RUN useradd -m -s /bin/bash openclaw \
   && chown -R openclaw:openclaw /data \
   && chown -R openclaw:openclaw /home/openclaw
 
-# Create pnpm directory (nvm/pnpm paths are set in openclaw user's .bashrc, not globally)
+# Define pnpm's global home and bin path before any pnpm command runs.
 RUN mkdir -p /home/openclaw/.local/share/pnpm && chown -R openclaw:openclaw /home/openclaw/.local
+ENV PNPM_HOME="/home/openclaw/.local/share/pnpm"
+ENV PATH="${PNPM_HOME}/bin:${PATH}"
 
 USER openclaw
 
@@ -117,9 +119,6 @@ RUN export SHELL=/bin/bash  && export NVM_DIR="$HOME/.nvm" \
   && nvm use --lts \
   && nvm alias default lts/* \
   && npm install -g pnpm \
-  && pnpm setup \
-  && export PNPM_HOME="/home/openclaw/.local/share/pnpm" \
-  && export PATH="$PNPM_HOME:$PATH" \
   && pnpm add -g "openclaw@${OPENCLAW_VERSION}"
 
 # Switch back to root for final setup
